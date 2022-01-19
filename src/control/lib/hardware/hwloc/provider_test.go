@@ -257,6 +257,47 @@ func TestHwlocProvider_GetTopology_Samples(t *testing.T) {
 				},
 			},
 		},
+		"odd hierarchy": {
+			hwlocXMLFile: filepath.Join(testdataDir, "eth_numa.xml"),
+			expResult: &hardware.Topology{
+				NUMANodes: map[uint]*hardware.NUMANode{
+					0: func() *hardware.NUMANode {
+						node := hardware.MockNUMANode(0, 14).
+							WithPCIBuses(
+								[]*hardware.PCIBus{
+									hardware.NewPCIBus(0, 0, 7),
+								},
+							).
+							WithDevices(
+								[]*hardware.PCIDevice{
+									{
+										Name:      "eth0",
+										Type:      hardware.DeviceTypeNetInterface,
+										PCIAddr:   *hardware.MustNewPCIAddress("0000:03:00.0"),
+										LinkSpeed: 2.4615390300750732,
+									},
+									{
+										Name:      "eth1",
+										Type:      hardware.DeviceTypeNetInterface,
+										PCIAddr:   *hardware.MustNewPCIAddress("0000:03:00.3"),
+										LinkSpeed: 2.4615390300750732,
+									},
+								},
+							)
+						return node
+					}(),
+					1: func() *hardware.NUMANode {
+						node := hardware.MockNUMANode(1, 14, 14).
+							WithPCIBuses(
+								[]*hardware.PCIBus{
+									hardware.NewPCIBus(0, 0x80, 0x88),
+								},
+							)
+						return node
+					}(),
+				},
+			},
+		},
 	} {
 		t.Run(name, func(t *testing.T) {
 			log, buf := logging.NewTestLogger(name)
