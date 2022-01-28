@@ -1,5 +1,5 @@
 //
-// (C) Copyright 2021 Intel Corporation.
+// (C) Copyright 2021-2022 Intel Corporation.
 //
 // SPDX-License-Identifier: BSD-2-Clause-Patent
 //
@@ -184,6 +184,18 @@ func PoolProperties() PoolPropertyMap {
 					return fmt.Sprintf("%d", n)
 				},
 				jsonNumeric: true,
+			},
+		},
+		"perf_domain": {
+			Property: PoolProperty{
+				Number:      drpc.PoolPropertyPerfDomain,
+				Description: "Pool performance domain",
+				valueHandler: func(s string) (*PoolPropertyValue, error) {
+					if !drpc.PerfDomainIsValid(s) {
+						return nil, errors.Errorf("invalid perf domain %q", s)
+					}
+					return &PoolPropertyValue{s}, nil
+				},
 			},
 		},
 	}

@@ -1,5 +1,5 @@
 //
-// (C) Copyright 2021 Intel Corporation.
+// (C) Copyright 2021-2022 Intel Corporation.
 //
 // SPDX-License-Identifier: BSD-2-Clause-Patent
 //
@@ -194,6 +194,17 @@ func TestControl_PoolProperties(t *testing.T) {
 			name:   "rp_pda",
 			value:  "-1",
 			expErr: errors.New("invalid"),
+		},
+		"perf_domain-valid": {
+			name:    "perf_domain",
+			value:   "valid",
+			expStr:  "perf_domain:valid",
+			expJson: []byte(`{"name":"perf_domain","description":"Pool performance domain","value":"valid"}`),
+		},
+		"perf_domain-invalid": {
+			name:   "perf_domain",
+			value:  "bad domain",
+			expErr: errors.New("invalid perf domain"),
 		},
 	} {
 		t.Run(name, func(t *testing.T) {

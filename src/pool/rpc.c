@@ -1,5 +1,5 @@
 /**
- * (C) Copyright 2016-2021 Intel Corporation.
+ * (C) Copyright 2016-2022 Intel Corporation.
  *
  * SPDX-License-Identifier: BSD-2-Clause-Patent
  */
@@ -189,6 +189,9 @@ pool_query_bits(daos_pool_info_t *po_info, daos_prop_t *prop)
 			break;
 		case DAOS_PROP_PO_RP_PDA:
 			bits |= DAOS_PO_QUERY_PROP_RP_PDA;
+			break;
+		case DAOS_PROP_PO_PERF_DOMAIN:
+			bits |= DAOS_PO_QUERY_PROP_PERF_DOMAIN;
 			break;
 		case DAOS_PROP_PO_ACL:
 			bits |= DAOS_PO_QUERY_PROP_ACL;

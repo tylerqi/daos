@@ -1,5 +1,5 @@
 /**
- * (C) Copyright 2019-2021 Intel Corporation.
+ * (C) Copyright 2019-2022 Intel Corporation.
  *
  * SPDX-License-Identifier: BSD-2-Clause-Patent
  */
@@ -53,6 +53,7 @@ daos_prop_has_str(struct daos_prop_entry *entry)
 	case DAOS_PROP_CO_OWNER:
 	case DAOS_PROP_PO_OWNER_GROUP:
 	case DAOS_PROP_CO_OWNER_GROUP:
+	case DAOS_PROP_PO_PERF_DOMAIN:
 		return true;
 	}
 	return false;
@@ -303,6 +304,14 @@ daos_prop_valid(daos_prop_t *prop, bool pool, bool input)
 				return false;
 			}
 			break;
+		case DAOS_PROP_PO_PERF_DOMAIN:
+			if (!daos_perf_domain_is_valid(
+				prop->dpp_entries[i].dpe_str)) {
+				D_ERROR("invalid performance domain \"%s\"\n",
+					prop->dpp_entries[i].dpe_str);
+				return false;
+			}
+			break;
 		case DAOS_PROP_PO_SELF_HEAL:
 		case DAOS_PROP_PO_EC_CELL_SZ:
 		case DAOS_PROP_PO_EC_PDA:
@@ -489,6 +498,14 @@ daos_prop_entry_copy(struct daos_prop_entry *entry,
 			  DAOS_PROP_LABEL_MAX_LEN);
 		if (entry_dup->dpe_str == NULL) {
 			D_ERROR("failed to dup label.\n");
+			return -DER_NOMEM;
+		}
+		break;
+	case DAOS_PROP_PO_PERF_DOMAIN:
+		D_STRNDUP(entry_dup->dpe_str, entry->dpe_str,
+			  DAOS_PROP_LABEL_MAX_LEN);
+		if (entry_dup->dpe_str == NULL) {
+			D_ERROR("failed to dup perf domain.\n");
 			return -DER_NOMEM;
 		}
 		break;
@@ -693,6 +710,7 @@ daos_prop_copy(daos_prop_t *prop_req, daos_prop_t *prop_reply)
 	bool			 group_alloc = false;
 	bool			 svc_list_alloc = false;
 	bool			 roots_alloc = false;
+	bool			 perf_domain_alloc = false;
 	struct daos_acl		*acl;
 	d_rank_list_t		*dst_list;
 	uint32_t		 type;
@@ -735,6 +753,12 @@ daos_prop_copy(daos_prop_t *prop_req, daos_prop_t *prop_reply)
 			if (entry_req->dpe_str == NULL)
 				D_GOTO(out, rc = -DER_NOMEM);
 			label_alloc = true;
+		} else if (type == DAOS_PROP_PO_PERF_DOMAIN) {
+			D_STRNDUP(entry_req->dpe_str, entry_reply->dpe_str,
+				  DAOS_PROP_LABEL_MAX_LEN);
+			if (entry_req->dpe_str == NULL)
+				D_GOTO(out, rc = -DER_NOMEM);
+			perf_domain_alloc = true;
 		} else if (type == DAOS_PROP_PO_ACL ||
 			   type == DAOS_PROP_CO_ACL) {
 			acl = entry_reply->dpe_val_ptr;
@@ -803,6 +827,8 @@ out:
 		}
 		if (roots_alloc)
 			free_ptr_prop_entry(prop_req, DAOS_PROP_CO_ROOTS);
+		if (perf_domain_alloc)
+			free_ptr_prop_entry(prop_req, DAOS_PROP_PO_PERF_DOMAIN);
 
 		if (entries_alloc)
 			D_FREE(prop_req->dpp_entries);

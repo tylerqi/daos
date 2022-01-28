@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2016-2021 Intel Corporation.
+ * (C) Copyright 2016-2022 Intel Corporation.
  *
  * SPDX-License-Identifier: BSD-2-Clause-Patent
  */
@@ -32,7 +32,7 @@
 #include <daos_types.h>
 
 /* Default layout version */
-#define DS_CONT_MD_VERSION 6
+#define DS_CONT_MD_VERSION 7
 
 /* Lowest compatible layout version */
 #define DS_CONT_MD_VERSION_LOW 4

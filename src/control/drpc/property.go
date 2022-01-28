@@ -1,5 +1,5 @@
 //
-// (C) Copyright 2019-2021 Intel Corporation.
+// (C) Copyright 2019-2022 Intel Corporation.
 //
 // SPDX-License-Identifier: BSD-2-Clause-Patent
 //
@@ -45,6 +45,8 @@ const (
 	PoolPropertyECPda = C.DAOS_PROP_PO_EC_PDA
 	//PoolPropertyRPPda is performance domain affinity level of replicated object.
 	PoolPropertyRPPda = C.DAOS_PROP_PO_RP_PDA
+	//PoolPropertyPerfDomain is Performance domain
+	PoolPropertyPerfDomain = C.DAOS_PROP_PO_PERF_DOMAIN
 )
 
 const (
@@ -102,4 +104,11 @@ func RpPdaIsValid(pda uint64) bool {
 		return false
 	}
 	return bool(C.daos_rp_pda_valid(C.uint32_t(pda)))
+}
+
+func PerfDomainIsValid(perfdomain string) bool {
+	cPerfDomain := C.CString(perfdomain)
+	defer C.free(unsafe.Pointer(cPerfDomain))
+
+	return bool(C.daos_perf_domain_is_valid(cPerfDomain))
 }
