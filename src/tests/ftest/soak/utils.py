@@ -1,6 +1,6 @@
 #!/usr/bin/python
 """
-(C) Copyright 2019-2021 Intel Corporation.
+(C) Copyright 2019-2022 Intel Corporation.
 
 SPDX-License-Identifier: BSD-2-Clause-Patent
 """
@@ -131,7 +131,7 @@ def reserved_file_copy(self, file, pool, container, num_bytes=None, cmd="read"):
             src_file.write(str(os.urandom(num_bytes)))
             src_file.close()
         dst_file = "daos://{}/{}".format(pool.uuid, container.uuid)
-        fscopy_cmd.set_fs_copy_params(src=file, dst=dst_file)
+        fscopy_cmd.set_params(src=file, dst=dst_file)
         fscopy_cmd.run()
     # reads file_name from container and writes to file
     elif cmd == "read":
@@ -140,7 +140,7 @@ def reserved_file_copy(self, file, pool, container, num_bytes=None, cmd="read"):
         dst_path = dst[0]
         src_file = "daos://{}/{}/{}".format(
             pool.uuid, container.uuid, dst_name)
-        fscopy_cmd.set_fs_copy_params(src=src_file, dst=dst_path)
+        fscopy_cmd.set_params(src=src_file, dst=dst_path)
         fscopy_cmd.run()
 
 
