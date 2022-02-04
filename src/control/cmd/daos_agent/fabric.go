@@ -301,10 +301,11 @@ func NUMAFabricFromScan(ctx context.Context, log logging.Logger, scan *hardware.
 		fi, err := scan.GetInterface(name)
 		if err != nil {
 			log.Errorf("unexpected failure getting FI %q from scan: %s", name, err.Error())
+			continue
 		}
 
 		newIF := &FabricInterface{
-			Name:        fi.OSDevice,
+			Name:        fi.NetInterface,
 			Domain:      fi.Name,
 			NetDevClass: fi.DeviceClass,
 			Providers:   fi.Providers.ToSlice(),
