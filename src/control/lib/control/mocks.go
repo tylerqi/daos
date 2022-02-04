@@ -574,6 +574,7 @@ type (
 	MockStorageConfig struct {
 		TotalBytes uint64
 		AvailBytes uint64
+		NvmeState  *storage.NvmeDevState
 	}
 
 	MockScmConfig struct {
@@ -630,6 +631,9 @@ func MockStorageScanResp(t *testing.T,
 		smdDevice := nvmeController.SmdDevices[0]
 		smdDevice.AvailBytes = mockNvmeConfig.AvailBytes
 		smdDevice.TotalBytes = mockNvmeConfig.TotalBytes
+		if mockNvmeConfig.NvmeState != nil {
+			smdDevice.NvmeState = *mockNvmeConfig.NvmeState
+		}
 		smdDevice.Rank = mockNvmeConfig.Rank
 		nvmeControllers = append(nvmeControllers, nvmeController)
 	}
