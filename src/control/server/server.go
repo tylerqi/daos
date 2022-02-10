@@ -312,12 +312,14 @@ func (srv *server) setupGrpc() error {
 	if err != nil {
 		return err
 	}
-	srv.mgmtSvc.clientNetworkHint = &mgmtpb.ClientNetHint{
-		Provider:        srv.cfg.Fabric.Provider,
-		CrtCtxShareAddr: srv.cfg.Fabric.CrtCtxShareAddr,
-		CrtTimeout:      srv.cfg.Fabric.CrtTimeout,
-		NetDevClass:     uint32(srv.netDevClass),
-		SrvSrxSet:       srxSetting,
+	srv.mgmtSvc.clientNetworkHint = []*mgmtpb.ClientNetHint{
+		{
+			Provider:        srv.cfg.Fabric.Provider,
+			CrtCtxShareAddr: srv.cfg.Fabric.CrtCtxShareAddr,
+			CrtTimeout:      srv.cfg.Fabric.CrtTimeout,
+			NetDevClass:     uint32(srv.netDevClass),
+			SrvSrxSet:       srxSetting,
+		},
 	}
 	mgmtpb.RegisterMgmtSvcServer(srv.grpcServer, srv.mgmtSvc)
 

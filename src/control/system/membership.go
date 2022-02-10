@@ -1,5 +1,5 @@
 //
-// (C) Copyright 2020-2021 Intel Corporation.
+// (C) Copyright 2020-2022 Intel Corporation.
 //
 // SPDX-License-Identifier: BSD-2-Clause-Patent
 //
@@ -84,7 +84,7 @@ type JoinRequest struct {
 	Rank           Rank
 	UUID           uuid.UUID
 	ControlAddr    *net.TCPAddr
-	FabricURI      string
+	FabricURIs     []string
 	FabricContexts uint32
 	FaultDomain    *FaultDomain
 	Incarnation    uint64
@@ -103,6 +103,10 @@ type JoinResponse struct {
 func (m *Membership) Join(req *JoinRequest) (resp *JoinResponse, err error) {
 	m.Lock()
 	defer m.Unlock()
+
+	if len(req.FabricURIs) == 0 {
+		return nil, errors.New("no fabric URIs in JoinRequest")
+	}
 
 	resp = new(JoinResponse)
 	var curMember *Member
@@ -143,7 +147,8 @@ func (m *Membership) Join(req *JoinRequest) (resp *JoinResponse, err error) {
 		curMember.state = MemberStateJoined
 		curMember.Info = ""
 		curMember.Addr = req.ControlAddr
-		curMember.FabricURI = req.FabricURI
+		curMember.PrimaryFabricURI = req.FabricURIs[0]
+		curMember.SecondaryFabricURIs = req.FabricURIs[0:]
 		curMember.FabricContexts = req.FabricContexts
 		curMember.FaultDomain = req.FaultDomain
 		curMember.Incarnation = req.Incarnation
@@ -169,14 +174,15 @@ func (m *Membership) Join(req *JoinRequest) (resp *JoinResponse, err error) {
 	}
 
 	newMember := &Member{
-		Rank:           req.Rank,
-		Incarnation:    req.Incarnation,
-		UUID:           req.UUID,
-		Addr:           req.ControlAddr,
-		FabricURI:      req.FabricURI,
-		FabricContexts: req.FabricContexts,
-		FaultDomain:    req.FaultDomain,
-		state:          MemberStateJoined,
+		Rank:                req.Rank,
+		Incarnation:         req.Incarnation,
+		UUID:                req.UUID,
+		Addr:                req.ControlAddr,
+		PrimaryFabricURI:    req.FabricURIs[0],
+		SecondaryFabricURIs: req.FabricURIs[0:],
+		FabricContexts:      req.FabricContexts,
+		FaultDomain:         req.FaultDomain,
+		state:               MemberStateJoined,
 	}
 	if err := m.db.AddMember(newMember); err != nil {
 		return nil, errors.Wrap(err, "failed to add new member")

@@ -42,7 +42,7 @@ func (svc *mgmtSvc) GetAttachInfo(ctx context.Context, req *mgmtpb.GetAttachInfo
 	if err := svc.checkReplicaRequest(req); err != nil {
 		return nil, err
 	}
-	if svc.clientNetworkHint == nil {
+	if len(svc.clientNetworkHint) == 0 {
 		return nil, errors.New("clientNetworkHint is missing")
 	}
 	svc.log.Debugf("MgmtSvc.GetAttachInfo dispatch, req:%+v\n", *req)
@@ -53,25 +53,42 @@ func (svc *mgmtSvc) GetAttachInfo(ctx context.Context, req *mgmtpb.GetAttachInfo
 	}
 
 	resp := new(mgmtpb.GetAttachInfoResp)
-	if req.GetAllRanks() {
-		for rank, uri := range groupMap.RankURIs {
-			resp.RankUris = append(resp.RankUris, &mgmtpb.GetAttachInfoResp_RankUri{
-				Rank: rank.Uint32(),
-				Uri:  uri,
-			})
-		}
-	} else {
+	rankURIs := groupMap.RankURIs
+	if !req.GetAllRanks() {
+		rankURIs = make(map[system.Rank][]string)
+
 		// If the request does not indicate that all ranks should be returned,
 		// it may be from an older client, in which case we should just return
 		// the MS ranks.
 		for _, rank := range groupMap.MSRanks {
-			resp.RankUris = append(resp.RankUris, &mgmtpb.GetAttachInfoResp_RankUri{
-				Rank: rank.Uint32(),
-				Uri:  groupMap.RankURIs[rank],
-			})
+			rankURIs[rank] = groupMap.RankURIs[rank]
 		}
 	}
-	resp.ClientNetHint = svc.clientNetworkHint
+
+	for rank, uris := range rankURIs {
+		if len(svc.clientNetworkHint) < len(uris) {
+			return nil, errors.Errorf("not enough client network hints (%d) for rank %d URIs (%d)",
+				len(svc.clientNetworkHint), rank, len(uris))
+		}
+
+		for i, uri := range uris {
+			rankURI := &mgmtpb.GetAttachInfoResp_RankUri{
+				Rank:     rank.Uint32(),
+				Uri:      uri,
+				Provider: svc.clientNetworkHint[i].Provider,
+			}
+			if i == 0 {
+				resp.RankUris = append(resp.RankUris, rankURI)
+			} else {
+				resp.AdditionalRankUris = append(resp.AdditionalRankUris, rankURI)
+			}
+		}
+	}
+
+	resp.ClientNetHint = svc.clientNetworkHint[0]
+	if len(svc.clientNetworkHint) > 1 {
+		resp.AdditionalClientNetHints = svc.clientNetworkHint[0:]
+	}
 	resp.MsRanks = system.RanksToUint32(groupMap.MSRanks)
 
 	// For resp.RankUris may be large, we make a resp copy with a limited
@@ -262,7 +279,7 @@ func (svc *mgmtSvc) join(ctx context.Context, req *batchJoinRequest) *batchJoinR
 		Rank:           system.Rank(req.Rank),
 		UUID:           uuid,
 		ControlAddr:    req.peerAddr,
-		FabricURI:      req.GetUri(),
+		FabricURIs:     req.GetUris(),
 		FabricContexts: req.GetNctxs(),
 		FaultDomain:    fd,
 		Incarnation:    req.GetIncarnation(),
@@ -273,11 +290,11 @@ func (svc *mgmtSvc) join(ctx context.Context, req *batchJoinRequest) *batchJoinR
 
 	member := joinResponse.Member
 	if joinResponse.Created {
-		svc.log.Debugf("new system member: rank %d, addr %s, uri %s",
-			member.Rank, req.peerAddr, member.FabricURI)
+		svc.log.Debugf("new system member: rank %d, addr %s, primary uri %s, secondary uris %s",
+			member.Rank, req.peerAddr, member.PrimaryFabricURI, member.SecondaryFabricURIs)
 	} else {
-		svc.log.Debugf("updated system member: rank %d, uri %s, %s->%s",
-			member.Rank, member.FabricURI, joinResponse.PrevState, member.State())
+		svc.log.Debugf("updated system member: rank %d, primary uri %s, secondary uris %s, %s->%s",
+			member.Rank, member.PrimaryFabricURI, member.SecondaryFabricURIs, joinResponse.PrevState, member.State())
 	}
 
 	resp := &batchJoinResponse{
@@ -347,10 +364,10 @@ func (svc *mgmtSvc) doGroupUpdate(ctx context.Context, forced bool) error {
 		MapVersion: gm.Version,
 	}
 	rankSet := &system.RankSet{}
-	for rank, uri := range gm.RankURIs {
+	for rank, uris := range gm.RankURIs {
 		req.Engines = append(req.Engines, &mgmtpb.GroupUpdateReq_Engine{
 			Rank: rank.Uint32(),
-			Uri:  uri,
+			Uris: uris,
 		})
 		rankSet.Add(rank)
 	}

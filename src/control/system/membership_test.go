@@ -1,5 +1,5 @@
 //
-// (C) Copyright 2020-2021 Intel Corporation.
+// (C) Copyright 2020-2022 Intel Corporation.
 //
 // SPDX-License-Identifier: BSD-2-Clause-Patent
 //
@@ -248,7 +248,7 @@ func TestSystem_Membership_HostRanks(t *testing.T) {
 		MockMember(t, 1, MemberStateJoined),
 		MockMember(t, 2, MemberStateStopped),
 		MockMember(t, 3, MemberStateExcluded),
-		NewMember(Rank(4), MockUUID(4), addr1.String(), addr1, MemberStateStopped), // second host rank
+		NewMember(Rank(4), MockUUID(4), []string{addr1.String()}, addr1, MemberStateStopped), // second host rank
 	}
 
 	for name, tc := range map[string]struct {
@@ -340,7 +340,7 @@ func TestSystem_Membership_CheckRanklist(t *testing.T) {
 		MockMember(t, 1, MemberStateJoined),
 		MockMember(t, 2, MemberStateStopped),
 		MockMember(t, 3, MemberStateExcluded),
-		NewMember(Rank(4), common.MockUUID(4), "", addr1, MemberStateStopped), // second host rank
+		NewMember(Rank(4), common.MockUUID(4), []string{}, addr1, MemberStateStopped), // second host rank
 	}
 
 	for name, tc := range map[string]struct {
@@ -430,7 +430,7 @@ func TestSystem_Membership_CheckHostlist(t *testing.T) {
 		MockMember(t, 3, MemberStateExcluded),
 		MockMember(t, 4, MemberStateJoined),
 		MockMember(t, 5, MemberStateJoined),
-		NewMember(Rank(6), common.MockUUID(6), "", addr1, MemberStateStopped), // second host rank
+		NewMember(Rank(6), common.MockUUID(6), []string{}, addr1, MemberStateStopped), // second host rank
 	}
 
 	for name, tc := range map[string]struct {
@@ -708,7 +708,7 @@ func TestSystem_Membership_Join(t *testing.T) {
 				Rank:        curMember.Rank,
 				UUID:        curMember.UUID,
 				ControlAddr: curMember.Addr,
-				FabricURI:   curMember.Addr.String(),
+				FabricURIs:  []string{curMember.Addr.String()},
 				FaultDomain: curMember.FaultDomain,
 			},
 			expResp: &JoinResponse{
@@ -722,7 +722,7 @@ func TestSystem_Membership_Join(t *testing.T) {
 				Rank:        curMember.Rank,
 				UUID:        curMember.UUID,
 				ControlAddr: curMember.Addr,
-				FabricURI:   curMember.Addr.String(),
+				FabricURIs:  []string{curMember.Addr.String()},
 				FaultDomain: fd2,
 			},
 			expResp: &JoinResponse{
@@ -736,7 +736,7 @@ func TestSystem_Membership_Join(t *testing.T) {
 				Rank:        Rank(42),
 				UUID:        curMember.UUID,
 				ControlAddr: curMember.Addr,
-				FabricURI:   curMember.Addr.String(),
+				FabricURIs:  []string{curMember.Addr.String()},
 				FaultDomain: curMember.FaultDomain,
 			},
 			expErr: errUuidExists(curMember.UUID),
@@ -746,7 +746,7 @@ func TestSystem_Membership_Join(t *testing.T) {
 				Rank:        NilRank,
 				UUID:        curMember.UUID,
 				ControlAddr: curMember.Addr,
-				FabricURI:   curMember.Addr.String(),
+				FabricURIs:  []string{curMember.Addr.String()},
 				FaultDomain: curMember.FaultDomain,
 			},
 			expErr: errRankChanged(NilRank, curMember.Rank, curMember.UUID),
@@ -756,7 +756,7 @@ func TestSystem_Membership_Join(t *testing.T) {
 				Rank:        curMember.Rank,
 				UUID:        newUUID,
 				ControlAddr: curMember.Addr,
-				FabricURI:   curMember.Addr.String(),
+				FabricURIs:  []string{curMember.Addr.String()},
 				FaultDomain: curMember.FaultDomain,
 			},
 			expErr: errUuidChanged(newUUID, curMember.UUID, curMember.Rank),
@@ -766,7 +766,7 @@ func TestSystem_Membership_Join(t *testing.T) {
 				Rank:           NilRank,
 				UUID:           newMember.UUID,
 				ControlAddr:    newMember.Addr,
-				FabricURI:      newMember.FabricURI,
+				FabricURIs:     newMember.FabricURIs(),
 				FabricContexts: newMember.FabricContexts,
 				FaultDomain:    newMember.FaultDomain,
 			},
@@ -782,7 +782,7 @@ func TestSystem_Membership_Join(t *testing.T) {
 				Rank:           NilRank,
 				UUID:           newMemberShallowFD.UUID,
 				ControlAddr:    newMemberShallowFD.Addr,
-				FabricURI:      newMemberShallowFD.FabricURI,
+				FabricURIs:     newMemberShallowFD.FabricURIs(),
 				FabricContexts: newMemberShallowFD.FabricContexts,
 				FaultDomain:    newMemberShallowFD.FaultDomain,
 			},
@@ -793,7 +793,7 @@ func TestSystem_Membership_Join(t *testing.T) {
 				Rank:           curMember.Rank,
 				UUID:           curMember.UUID,
 				ControlAddr:    curMember.Addr,
-				FabricURI:      curMember.FabricURI,
+				FabricURIs:     curMember.FabricURIs(),
 				FabricContexts: curMember.FabricContexts,
 				FaultDomain:    shallowFD,
 			},
@@ -807,7 +807,7 @@ func TestSystem_Membership_Join(t *testing.T) {
 				Rank:        curMember.Rank,
 				UUID:        curMember.UUID,
 				ControlAddr: curMember.Addr,
-				FabricURI:   curMember.Addr.String(),
+				FabricURIs:  []string{curMember.Addr.String()},
 				FaultDomain: shallowFD,
 			},
 			expResp: &JoinResponse{

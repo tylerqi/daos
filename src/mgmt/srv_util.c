@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2019-2021 Intel Corporation.
+ * (C) Copyright 2019-2022 Intel Corporation.
  *
  * SPDX-License-Identifier: BSD-2-Clause-Patent
  */
@@ -46,8 +46,9 @@ ds_mgmt_group_update(crt_group_mod_op_t op, struct server_entry *servers,
 		rc = -DER_NOMEM;
 		goto out;
 	}
-	for (i = 0; i < nservers; i++)
-		uris[i] = servers[i].se_uri;
+	for (i = 0; i < nservers; i++) {
+		uris[i] = servers[i].se_uris.ca_arrays[0];
+	}
 
 	rc = crt_group_primary_modify(NULL /* grp */, &info->dmi_ctx,
 				      1 /* num_ctxs */, ranks, uris, op,

@@ -69,11 +69,12 @@ struct  _Mgmt__GroupUpdateReq__Engine
 {
   ProtobufCMessage base;
   uint32_t rank;
-  char *uri;
+  size_t n_uris;
+  char **uris;
 };
 #define MGMT__GROUP_UPDATE_REQ__ENGINE__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&mgmt__group_update_req__engine__descriptor) \
-    , 0, (char *)protobuf_c_empty_string }
+    , 0, 0,NULL }
 
 
 struct  _Mgmt__GroupUpdateReq
@@ -114,9 +115,10 @@ struct  _Mgmt__JoinReq
    */
   uint32_t rank;
   /*
-   * Server CaRT base URI (i.e., for context 0).
+   * Server CaRT base URIs (i.e., for context 0).
    */
-  char *uri;
+  size_t n_uris;
+  char **uris;
   /*
    * Server CaRT context count.
    */
@@ -140,7 +142,7 @@ struct  _Mgmt__JoinReq
 };
 #define MGMT__JOIN_REQ__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&mgmt__join_req__descriptor) \
-    , (char *)protobuf_c_empty_string, (char *)protobuf_c_empty_string, 0, (char *)protobuf_c_empty_string, 0, (char *)protobuf_c_empty_string, (char *)protobuf_c_empty_string, 0, 0 }
+    , (char *)protobuf_c_empty_string, (char *)protobuf_c_empty_string, 0, 0,NULL, 0, (char *)protobuf_c_empty_string, (char *)protobuf_c_empty_string, 0, 0 }
 
 
 struct  _Mgmt__JoinResp
@@ -259,10 +261,11 @@ struct  _Mgmt__GetAttachInfoResp__RankUri
   ProtobufCMessage base;
   uint32_t rank;
   char *uri;
+  char *provider;
 };
 #define MGMT__GET_ATTACH_INFO_RESP__RANK_URI__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&mgmt__get_attach_info_resp__rank_uri__descriptor) \
-    , 0, (char *)protobuf_c_empty_string }
+    , 0, (char *)protobuf_c_empty_string, (char *)protobuf_c_empty_string }
 
 
 struct  _Mgmt__GetAttachInfoResp
@@ -273,7 +276,7 @@ struct  _Mgmt__GetAttachInfoResp
    */
   int32_t status;
   /*
-   * Rank URIs
+   * Rank URIs for the primary provider
    */
   size_t n_rank_uris;
   Mgmt__GetAttachInfoResp__RankUri **rank_uris;
@@ -286,11 +289,24 @@ struct  _Mgmt__GetAttachInfoResp
    */
   size_t n_ms_ranks;
   uint32_t *ms_ranks;
+  /*
+   * Primary provider hint
+   */
   Mgmt__ClientNetHint *client_net_hint;
+  /*
+   * Rank URIs for additional providers
+   */
+  size_t n_additional_rank_uris;
+  Mgmt__GetAttachInfoResp__RankUri **additional_rank_uris;
+  /*
+   * Hints for additional providers
+   */
+  size_t n_additional_client_net_hints;
+  Mgmt__ClientNetHint **additional_client_net_hints;
 };
 #define MGMT__GET_ATTACH_INFO_RESP__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&mgmt__get_attach_info_resp__descriptor) \
-    , 0, 0,NULL, 0,NULL, NULL }
+    , 0, 0,NULL, 0,NULL, NULL, 0,NULL, 0,NULL }
 
 
 struct  _Mgmt__PrepShutdownReq

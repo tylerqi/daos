@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2019-2021 Intel Corporation.
+ * (C) Copyright 2019-2022 Intel Corporation.
  *
  * SPDX-License-Identifier: BSD-2-Clause-Patent
  */
@@ -135,7 +135,12 @@ free_server_list(struct server_entry *list, int len)
 	int i;
 
 	for (i = 0; i < len; i++) {
-		D_FREE(list[i].se_uri);
+		int j;
+
+		for (j = 0; j < list[i].se_uris.ca_count; j++)
+			D_FREE(list[i].se_uris.ca_arrays[j]);
+
+		D_FREE(list[i].se_uris.ca_arrays);
 	}
 	D_FREE(list);
 }
@@ -151,11 +156,25 @@ dup_server_list(struct server_entry *in, int in_len)
 		return NULL;
 
 	for (i = 0; i < in_len; i++) {
+		int j;
+
 		out[i].se_rank = in[i].se_rank;
-		D_STRNDUP(out[i].se_uri, in[i].se_uri, ADDR_STR_MAX_LEN - 1);
-		if (out[i].se_uri == NULL) {
+
+		D_ALLOC_ARRAY(out[i].se_uris.ca_arrays, in[i].se_uris.ca_count);
+		if (out[i].se_uris.ca_arrays == NULL) {
 			free_server_list(out, i);
 			return NULL;
+		}
+
+		out[in_len].se_uris.ca_count = 0;
+		for (j = 0; j < in[i].se_uris.ca_count; j++) {
+			D_STRNDUP(out[i].se_uris.ca_arrays[j], in[i].se_uris.ca_arrays[j],
+				  ADDR_STR_MAX_LEN - 1);
+			if (out[i].se_uris.ca_arrays[j] == NULL) {
+				free_server_list(out, i);
+				return NULL;
+			}
+			out[in_len].se_uris.ca_count++;
 		}
 	}
 

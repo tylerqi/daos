@@ -702,12 +702,12 @@ static const ProtobufCFieldDescriptor mgmt__group_update_req__engine__field_desc
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
   {
-    "uri",
+    "uris",
     2,
-    PROTOBUF_C_LABEL_NONE,
+    PROTOBUF_C_LABEL_REPEATED,
     PROTOBUF_C_TYPE_STRING,
-    0,   /* quantifier_offset */
-    offsetof(Mgmt__GroupUpdateReq__Engine, uri),
+    offsetof(Mgmt__GroupUpdateReq__Engine, n_uris),
+    offsetof(Mgmt__GroupUpdateReq__Engine, uris),
     NULL,
     &protobuf_c_empty_string,
     0,             /* flags */
@@ -716,7 +716,7 @@ static const ProtobufCFieldDescriptor mgmt__group_update_req__engine__field_desc
 };
 static const unsigned mgmt__group_update_req__engine__field_indices_by_name[] = {
   0,   /* field[0] = rank */
-  1,   /* field[1] = uri */
+  1,   /* field[1] = uris */
 };
 static const ProtobufCIntRange mgmt__group_update_req__engine__number_ranges[1 + 1] =
 {
@@ -866,12 +866,12 @@ static const ProtobufCFieldDescriptor mgmt__join_req__field_descriptors[9] =
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
   {
-    "uri",
+    "uris",
     4,
-    PROTOBUF_C_LABEL_NONE,
+    PROTOBUF_C_LABEL_REPEATED,
     PROTOBUF_C_TYPE_STRING,
-    0,   /* quantifier_offset */
-    offsetof(Mgmt__JoinReq, uri),
+    offsetof(Mgmt__JoinReq, n_uris),
+    offsetof(Mgmt__JoinReq, uris),
     NULL,
     &protobuf_c_empty_string,
     0,             /* flags */
@@ -946,7 +946,7 @@ static const unsigned mgmt__join_req__field_indices_by_name[] = {
   2,   /* field[2] = rank */
   6,   /* field[6] = srvFaultDomain */
   0,   /* field[0] = sys */
-  3,   /* field[3] = uri */
+  3,   /* field[3] = uris */
   1,   /* field[1] = uuid */
 };
 static const ProtobufCIntRange mgmt__join_req__number_ranges[1 + 1] =
@@ -1343,7 +1343,7 @@ const ProtobufCMessageDescriptor mgmt__client_net_hint__descriptor =
   (ProtobufCMessageInit) mgmt__client_net_hint__init,
   NULL,NULL,NULL    /* reserved[123] */
 };
-static const ProtobufCFieldDescriptor mgmt__get_attach_info_resp__rank_uri__field_descriptors[2] =
+static const ProtobufCFieldDescriptor mgmt__get_attach_info_resp__rank_uri__field_descriptors[3] =
 {
   {
     "rank",
@@ -1369,15 +1369,28 @@ static const ProtobufCFieldDescriptor mgmt__get_attach_info_resp__rank_uri__fiel
     0,             /* flags */
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
+  {
+    "provider",
+    3,
+    PROTOBUF_C_LABEL_NONE,
+    PROTOBUF_C_TYPE_STRING,
+    0,   /* quantifier_offset */
+    offsetof(Mgmt__GetAttachInfoResp__RankUri, provider),
+    NULL,
+    &protobuf_c_empty_string,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
 };
 static const unsigned mgmt__get_attach_info_resp__rank_uri__field_indices_by_name[] = {
+  2,   /* field[2] = provider */
   0,   /* field[0] = rank */
   1,   /* field[1] = uri */
 };
 static const ProtobufCIntRange mgmt__get_attach_info_resp__rank_uri__number_ranges[1 + 1] =
 {
   { 1, 0 },
-  { 0, 2 }
+  { 0, 3 }
 };
 const ProtobufCMessageDescriptor mgmt__get_attach_info_resp__rank_uri__descriptor =
 {
@@ -1387,14 +1400,14 @@ const ProtobufCMessageDescriptor mgmt__get_attach_info_resp__rank_uri__descripto
   "Mgmt__GetAttachInfoResp__RankUri",
   "mgmt",
   sizeof(Mgmt__GetAttachInfoResp__RankUri),
-  2,
+  3,
   mgmt__get_attach_info_resp__rank_uri__field_descriptors,
   mgmt__get_attach_info_resp__rank_uri__field_indices_by_name,
   1,  mgmt__get_attach_info_resp__rank_uri__number_ranges,
   (ProtobufCMessageInit) mgmt__get_attach_info_resp__rank_uri__init,
   NULL,NULL,NULL    /* reserved[123] */
 };
-static const ProtobufCFieldDescriptor mgmt__get_attach_info_resp__field_descriptors[4] =
+static const ProtobufCFieldDescriptor mgmt__get_attach_info_resp__field_descriptors[6] =
 {
   {
     "status",
@@ -1444,8 +1457,34 @@ static const ProtobufCFieldDescriptor mgmt__get_attach_info_resp__field_descript
     0,             /* flags */
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
+  {
+    "additional_rank_uris",
+    5,
+    PROTOBUF_C_LABEL_REPEATED,
+    PROTOBUF_C_TYPE_MESSAGE,
+    offsetof(Mgmt__GetAttachInfoResp, n_additional_rank_uris),
+    offsetof(Mgmt__GetAttachInfoResp, additional_rank_uris),
+    &mgmt__get_attach_info_resp__rank_uri__descriptor,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "additional_client_net_hints",
+    6,
+    PROTOBUF_C_LABEL_REPEATED,
+    PROTOBUF_C_TYPE_MESSAGE,
+    offsetof(Mgmt__GetAttachInfoResp, n_additional_client_net_hints),
+    offsetof(Mgmt__GetAttachInfoResp, additional_client_net_hints),
+    &mgmt__client_net_hint__descriptor,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
 };
 static const unsigned mgmt__get_attach_info_resp__field_indices_by_name[] = {
+  5,   /* field[5] = additional_client_net_hints */
+  4,   /* field[4] = additional_rank_uris */
   3,   /* field[3] = client_net_hint */
   2,   /* field[2] = ms_ranks */
   1,   /* field[1] = rank_uris */
@@ -1454,7 +1493,7 @@ static const unsigned mgmt__get_attach_info_resp__field_indices_by_name[] = {
 static const ProtobufCIntRange mgmt__get_attach_info_resp__number_ranges[1 + 1] =
 {
   { 1, 0 },
-  { 0, 4 }
+  { 0, 6 }
 };
 const ProtobufCMessageDescriptor mgmt__get_attach_info_resp__descriptor =
 {
@@ -1464,7 +1503,7 @@ const ProtobufCMessageDescriptor mgmt__get_attach_info_resp__descriptor =
   "Mgmt__GetAttachInfoResp",
   "mgmt",
   sizeof(Mgmt__GetAttachInfoResp),
-  4,
+  6,
   mgmt__get_attach_info_resp__field_descriptors,
   mgmt__get_attach_info_resp__field_indices_by_name,
   1,  mgmt__get_attach_info_resp__number_ranges,
