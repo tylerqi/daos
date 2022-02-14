@@ -10,7 +10,7 @@ SHELL=/bin/bash
 -include Makefile.local
 
 # default to Leap 15 distro for chrootbuild
-CHROOT_NAME ?= opensuse-leap-15.3-x86_64
+CHROOT_NAME ?= opensuse-leap-15.2-x86_64
 include packaging/Makefile_distro_vars.mk
 
 ifeq ($(DEB_NAME),)
@@ -86,7 +86,7 @@ define distro_map
 	case $(DISTRO_ID) in               \
 	    el7) distro="centos7"          \
 	    ;;                             \
-	    el8) distro="centos8"          \
+	    el8) distro="el8"              \
 	    ;;                             \
 	    sle12.3) distro="sles12.3"     \
 	    ;;                             \
@@ -334,6 +334,9 @@ endif
 # *_GROUP_* repos may not supply a repomd.xml.key.
 ifeq ($(LOCAL_REPOS),true)
   ifneq ($(REPOSITORY_URL),)
+    ifneq ($(ID_LIKE),debian)
+      REPOSITORY_URL := $(subst repo,artifactory,$(REPOSITORY_URL))
+    endif # ifeq ($(ID_LIKE),debian)
     # group repos are not working in Nexus so we hack in the group members directly below
     #ifneq ($(DAOS_STACK_$(DISTRO_BASE)_DOCKER_$(DAOS_REPO_TYPE)_REPO),)
     #DISTRO_REPOS = $(DAOS_STACK_$(DISTRO_BASE)_DOCKER_$(DAOS_REPO_TYPE)_REPO)
@@ -345,34 +348,34 @@ ifeq ($(LOCAL_REPOS),true)
         # of values with spaces as environment variables
         $(DISTRO_BASE)_LOCAL_REPOS := [trusted=yes]
       else
-        $(DISTRO_BASE)_LOCAL_REPOS := $(REPOSITORY_URL)$(DAOS_STACK_$(DISTRO_BASE)_LOCAL_REPO)
+        $(DISTRO_BASE)_LOCAL_REPOS := $(subst repository/,artifactory/,$(subst leap,sl,$(REPOSITORY_URL)$(subst daos-stack-,daos-stack-daos-,$(DAOS_STACK_$(DISTRO_BASE)_LOCAL_REPO))|$(REPOSITORY_URL)$(subst daos-stack-,daos-stack-deps-,$(DAOS_STACK_$(DISTRO_BASE)_LOCAL_REPO))))
         DISTRO_REPOS = disabled # any non-empty value here works and is not used beyond testing if the value is empty or not
       endif # ifeq ($(ID_LIKE),debian)
       ifeq ($(DISTRO_BASE), EL_8)
         # hack to use 8.3 non-group repos on EL_8
-        $(DISTRO_BASE)_LOCAL_REPOS := $($(DISTRO_BASE)_LOCAL_REPOS)|$(subst $(ORIG_TARGET_VER),$(DISTRO_VERSION),$(REPOSITORY_URL)repository/centos-8.3-base-x86_64-proxy|$(REPOSITORY_URL)repository/centos-8.3-extras-x86_64-proxy|$(REPOSITORY_URL)repository/epel-el-8-x86_64-proxy)
+        $(DISTRO_BASE)_LOCAL_REPOS := $($(DISTRO_BASE)_LOCAL_REPOS)|$(subst $(ORIG_TARGET_VER),$(DISTRO_VERSION),$(REPOSITORY_URL)artifactory/rocky-8.5-base-x86_64-proxy|$(REPOSITORY_URL)artifactory/rocky-8.5-extras-x86_64-proxy|$(REPOSITORY_URL)artifactory/epel-el-8-x86_64-proxy)
       else ifeq ($(DISTRO_BASE), EL_7)
         # hack to use 7.9 non-group repos on EL_7
-        $(DISTRO_BASE)_LOCAL_REPOS := $($(DISTRO_BASE)_LOCAL_REPOS)|$(subst $(ORIG_TARGET_VER),$(DISTRO_VERSION),$(REPOSITORY_URL)repository/centos-7.9-base-x86_64-proxy|$(REPOSITORY_URL)repository/centos-7.9-extras-x86_64-proxy|$(REPOSITORY_URL)repository/centos-7.9-updates-x86_64-proxy|$(REPOSITORY_URL)repository/epel-el-7-x86_64-proxy)
+        $(DISTRO_BASE)_LOCAL_REPOS := $($(DISTRO_BASE)_LOCAL_REPOS)|$(subst $(ORIG_TARGET_VER),$(DISTRO_VERSION),$(REPOSITORY_URL)artifactory/centos-7.9.2009-base-x86_64-proxy|$(REPOSITORY_URL)artifactory/centos-7.9.2009-extras-x86_64-proxy|$(REPOSITORY_URL)artifactory/centos-7.9.2009-updates-x86_64-proxy|$(REPOSITORY_URL)artifactory/epel-el-7-x86_64-proxy)
       else ifeq ($(DISTRO_BASE), LEAP_15)
         # hack to use 15 non-group repos on LEAP_15
-        $(DISTRO_BASE)_LOCAL_REPOS := $($(DISTRO_BASE)_LOCAL_REPOS)|$(subst $(ORIG_TARGET_VER),$(DISTRO_VERSION),$(REPOSITORY_URL)repository/opensuse-15.2-oss-x86_64-proxy|$(REPOSITORY_URL)repository/opensuse-15.2-update-oss-x86_64-provo-mirror-proxy|$(REPOSITORY_URL)repository/opensuse-15.2-update-non-oss-x86_64-proxy|$(REPOSITORY_URL)repository/opensuse-15.2-non-oss-x86_64-proxy|$(REPOSITORY_URL)repository/opensuse-15.2-repo-sle-update-proxy|$(REPOSITORY_URL)repository/opensuse-15.2-repo-backports-update-proxy)
+        $(DISTRO_BASE)_LOCAL_REPOS := $($(DISTRO_BASE)_LOCAL_REPOS)|$(subst $(ORIG_TARGET_VER),$(DISTRO_VERSION),$(REPOSITORY_URL)artifactory/opensuse-15.2-oss-x86_64-proxy|$(REPOSITORY_URL)artifactory/opensuse-15.2-update-oss-x86_64-proxy|$(REPOSITORY_URL)artifactory/opensuse-15.2-update-non-oss-x86_64-proxy|$(REPOSITORY_URL)artifactory/opensuse-15.2-non-oss-x86_64-proxy|$(REPOSITORY_URL)artifactory/opensuse-15.2-repo-sle-update-proxy|$(REPOSITORY_URL)artifactory/opensuse-15.2-repo-backports-update-proxy)
       else
         # debian
         $(DISTRO_BASE)_LOCAL_REPOS := $($(DISTRO_BASE)_LOCAL_REPOS) $(REPOSITORY_URL)$(DAOS_STACK_$(DISTRO_BASE)_$(DAOS_REPO_TYPE)_REPO)
       endif # ifeq ($(DISTRO_BASE), *)
     endif #ifneq ($(DAOS_STACK_$(DISTRO_BASE)_$(DAOS_REPO_TYPE)_REPO),)
     ifneq ($(DAOS_STACK_$(DISTRO_BASE)_APPSTREAM_REPO),)
-      $(DISTRO_BASE)_LOCAL_REPOS := $($(DISTRO_BASE)_LOCAL_REPOS)|$(REPOSITORY_URL)$(DAOS_STACK_$(DISTRO_BASE)_APPSTREAM_REPO)
+      $(DISTRO_BASE)_LOCAL_REPOS := $($(DISTRO_BASE)_LOCAL_REPOS)|$(REPOSITORY_URL)$(subst repository/,artifactory/,$(subst centos-8.3,rocky-8.5,$(DAOS_STACK_$(DISTRO_BASE)_APPSTREAM_REPO)))
     endif
     # group repos are not working in Nexus so we hack in the group members directly above
     ifneq ($(DAOS_STACK_$(DISTRO_BASE)_POWERTOOLS_REPO),)
-      $(DISTRO_BASE)_LOCAL_REPOS := $($(DISTRO_BASE)_LOCAL_REPOS)|$(REPOSITORY_URL)$(DAOS_STACK_$(DISTRO_BASE)_POWERTOOLS_REPO)
+      $(DISTRO_BASE)_LOCAL_REPOS := $($(DISTRO_BASE)_LOCAL_REPOS)|$(REPOSITORY_URL)$(subst repository/,artifactory/,$(subst centos-8.3,rocky-8.5,$(DAOS_STACK_$(DISTRO_BASE)_POWERTOOLS_REPO)))
     endif
     ifneq ($(ID_LIKE),debian)
-      ifneq ($(DAOS_STACK_INTEL_ONEAPI_REPO),)
-        $(DISTRO_BASE)_LOCAL_REPOS := $($(DISTRO_BASE)_LOCAL_REPOS)|$(REPOSITORY_URL)$(DAOS_STACK_INTEL_ONEAPI_REPO)
-      endif # ifneq ($(DAOS_STACK_INTEL_ONEAPI_REPO),)
+      #ifneq ($(DAOS_STACK_INTEL_ONEAPI_REPO),)
+      #  $(DISTRO_BASE)_LOCAL_REPOS := $($(DISTRO_BASE)_LOCAL_REPOS)|$(REPOSITORY_URL)$(DAOS_STACK_INTEL_ONEAPI_REPO)
+      #endif # ifneq ($(DAOS_STACK_INTEL_ONEAPI_REPO),)
     endif # ifneq ($(ID_LIKE),debian)
   endif # ifneq ($(REPOSITORY_URL),)
 endif # ifeq ($(LOCAL_REPOS),true)

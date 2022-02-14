@@ -16,6 +16,9 @@ RUN dnf -y install mock make \
                    rpm-build curl createrepo rpmlint redhat-lsb-core git \
                    python-srpm-macros rpmdevtools
 
+# need updated mock-core-configs for *+epel-8-*
+RUN dnf --enablerepo=\*testing\* -y upgrade mock-core-configs
+
 # Add build user (to keep rpmbuild happy)
 ENV USER build
 ENV PASSWD build
