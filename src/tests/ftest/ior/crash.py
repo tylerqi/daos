@@ -1,6 +1,6 @@
 #!/usr/bin/python
 """
-  (C) Copyright 2020-2021 Intel Corporation.
+  (C) Copyright 2020-2022 Intel Corporation.
 
   SPDX-License-Identifier: BSD-2-Clause-Patent
 """
@@ -11,7 +11,7 @@ from ior_test_base import IorTestBase
 from dmg_utils import check_system_query_status
 
 
-class CrashIor(IorTestBase):
+class IorCrash(IorTestBase):
     # pylint: disable=too-many-ancestors
     """Test class Description: DAOS server does not need to be restarted
                                when the application crashes.
@@ -23,20 +23,26 @@ class CrashIor(IorTestBase):
         super().setUp()
         self.dmg = self.get_dmg_command()
 
-    def test_crashior(self):
+    def test_ior_crash(self):
         """Jira ID: DAOS-4332.
 
         Test Description:
-            DAOS server does not need to be restarted when the application
-            crashes.
+            Verify DAOS server does not need to be restarted when the application crashes.
 
         Use Cases:
-            Run IOR over dfuse.
-            Cancel IOR in the middle of io.
-            Check daos server does not need to be restarted when the
-            application crashes.
+            Run IOR Write.
+            Kill IOR in the middle of Write.
+            Verify DAOS servers did not crash.
+            Run IOR Write, Read.
+            Kill IOR in the middle of read.
+            Verify DAOS servers did not crash.
+            Run IOR Write, Read, CheckRead.
+            Verify IOR completes successfully.
 
-        :avocado: tags=all,daosio,hw,medium,ib2,full_regression,crashior
+        :avocado: tags=all,full_regression
+        :avocado: tags=hw,medium,ib2
+        :avocado: tags=daosio,ior
+        :avocado: tags=ior_crash
         """
         # run ior and crash it during write process
         self.run_ior_with_pool()
@@ -51,7 +57,7 @@ class CrashIor(IorTestBase):
         scan_info = self.dmg.system_query(verbose=True)
         # check for any crashed servers after killing ior in the middle
         if not check_system_query_status(scan_info):
-            self.fail("One or more server crashed")
+            self.fail("One or more servers crashed")
 
         # run ior again and crash it during read process
         self.run_ior_with_pool()
@@ -67,7 +73,7 @@ class CrashIor(IorTestBase):
         scan_info = self.dmg.system_query(verbose=True)
         # check for any crashed servers after killing ior in the middle
         if not check_system_query_status(scan_info):
-            self.fail("One or more server crashed")
+            self.fail("One or more servers crashed")
 
         # run ior again if everything goes well till now and allow it to
         # complete without killing in the middle this time to check

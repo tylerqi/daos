@@ -49,11 +49,8 @@ ior:
   flags: "-C -k -e -w -g -G 27 -D 300 -Q 1 -vv"
   read_flags: "-C -k -e -r -R -g -G 27 -Q 1 -vv"
   dfs_chunk: 470080
-  ior_api:
-    daos:
-      api: DFS
+  api: DFS
   test_file: /testFile
-  repetitions: 1
   transfer_size: '47008'
   block_size: '47008'
   segment_count: 2000000

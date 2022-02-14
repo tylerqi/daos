@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """
-  (C) Copyright 2018-2021 Intel Corporation.
+  (C) Copyright 2018-2022 Intel Corporation.
 
   SPDX-License-Identifier: BSD-2-Clause-Patent
 """
@@ -22,14 +22,14 @@ class IorHard(IorTestBase):
             Run IOR Hard with EC Object types.
 
         Use Cases:
-            Create the pool, container and run IOR Hard with EC Objects.
+            Run IOR Hard Write, Read CheckRead with EC objects.
 
         :avocado: tags=all,full_regression
         :avocado: tags=hw,large,ib2
-        :avocado: tags=ec,ec_array
-        :avocado: tags=ec_ior,ior_hard
+        :avocado: tags=ec,ec_array,ec_ior,ior
+        :avocado: tags=ior_hard
         """
-        ior_read_flags = self.params.get("read_flags", "/run/ior/*")
+        ior_read_flags = self.params.get("read_flags", self.ior_cmd.namespace)
         self.run_ior_with_pool()
         self.ior_cmd.flags.update(ior_read_flags)
         self.ior_cmd.sw_wearout.update(None)

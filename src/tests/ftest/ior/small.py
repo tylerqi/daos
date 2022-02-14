@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """
-(C) Copyright 2018-2021 Intel Corporation.
+(C) Copyright 2018-2022 Intel Corporation.
 
 SPDX-License-Identifier: BSD-2-Clause-Patent
 """
@@ -21,32 +21,29 @@ class IorSmall(IorTestBase):
         """Jira ID: DAOS-2715, DAOS-3657, DAOS-4909.
 
         Test Description:
-            Purpose of this test is to have small ior test to check basic
-            functionality for DFS, MPIIO and HDF5 api
+            Verify functionality of IOR with DFS, MPIIO, and HDF5 APIs.
 
         Use case:
-            Run ior with read, write, CheckWrite, CheckRead in ssf mode.
-            Run ior with read, write, CheckWrite, CheckRead in fpp mode.
-            Run ior with read, write, CheckWrite and access to random
-                offset instead of sequential.
-            All above three cases to be run with single client and
-                multiple client processes in two separate nodes.
+            Run IOR Write, CheckWrite, Read, CheckRead in SSF mode.
+            Run IOR Write, CheckWrite, Read, CheckRead in FPP mode.
+            Repeat with different APIs.
+            Repeat with different object classes.
+            Repeat with single client and multi-client on separate nodes.
 
         :avocado: tags=all,pr,daily_regression
         :avocado: tags=hw,large
-        :avocado: tags=daosio,mpiio,checksum,mpich,dfuse,DAOS_5610
-        :avocado: tags=iorsmall
+        :avocado: tags=daosio,mpiio,checksum,mpich,dfuse,DAOS_5610,ior
+        :avocado: tags=ior_small
         """
         cncl_tickets = []
         flags = self.params.get("ior_flags", '/run/ior/iorflags/*')
         apis = self.params.get("ior_api", '/run/ior/iorflags/*')
         dfuse_mount_dir = self.params.get("mount_dir", "/run/dfuse/*")
-        transfer_block_size = self.params.get("transfer_block_size",
-                                              '/run/ior/iorflags/*')
+        transfer_block_size = self.params.get("transfer_block_size", '/run/ior/iorflags/*')
         obj_class = self.params.get("obj_class", '/run/ior/iorflags/*')
 
-        results = self.run_ior_multiple_variants(obj_class, apis, transfer_block_size,
-                                                 flags, dfuse_mount_dir)
+        results = self.run_ior_multiple_variants(
+            obj_class, apis, transfer_block_size, flags, dfuse_mount_dir)
         # Running a variant for ior fpp
         self.ior_cmd.flags.update(flags[1])
         self.ior_cmd.api.update(apis[0])

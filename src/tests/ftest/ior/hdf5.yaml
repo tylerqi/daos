@@ -35,7 +35,6 @@ ior:
       np: 144
   flags: "-v -W -w -r -R"
   api: HDF5
-  repetitions: 1
   transfersize_blocksize: !mux
     1K:
       transfer_size: '1K'
