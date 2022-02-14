@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 '''
-  (C) Copyright 2019-2021 Intel Corporation.
+  (C) Copyright 2019-2022 Intel Corporation.
 
   SPDX-License-Identifier: BSD-2-Clause-Patent
 '''
@@ -60,7 +60,6 @@ class EcodFioRebuild(ErasureCodeFio):
             # Read and verify the original data.
             self.fio_cmd.run()
 
-    @skipForTicket("DAOS-8870")
     def test_ec_online_rebuild_fio(self):
         """Jira ID: DAOS-7320.
 
@@ -83,7 +82,6 @@ class EcodFioRebuild(ErasureCodeFio):
         """
         self.execution('on-line')
 
-    @skipForTicket("DAOS-8640")
     def test_ec_offline_rebuild_fio(self):
         """Jira ID: DAOS-7320.
 
