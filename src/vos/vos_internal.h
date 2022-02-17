@@ -215,7 +215,7 @@ struct vos_container {
 	/* Various flags */
 	unsigned int		vc_in_aggregation:1,
 				vc_in_discard:1,
-				vc_reindex_cmt_dtx:1;
+				vc_cmt_dtx_indexed:1;
 	unsigned int		vc_obj_discard_count;
 	unsigned int		vc_open_count;
 };
@@ -1273,5 +1273,11 @@ vos_ts_add_missing(struct vos_ts_set *ts_set, daos_key_t *dkey, int akey_nr,
 
 int
 vos_pool_settings_init(void);
+
+static inline bool
+umoff_is_null(umem_off_t umoff)
+{
+	return umoff == UMOFF_NULL;
+}
 
 #endif /* __VOS_INTERNAL_H__ */
