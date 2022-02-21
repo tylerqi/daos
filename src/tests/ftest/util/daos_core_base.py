@@ -112,6 +112,7 @@ class DaosCoreBase(TestWithServers):
             num_clients = self.params.get("num_clients", '/run/daos_tests/*')
         scm_size = self.params.get("scm_size", '/run/pool/*')
         nvme_size = self.params.get("nvme_size", '/run/pool/*')
+        crt_timeout = self.params.get("crt_timeout", '/run/*')
         args = self.get_test_param("args", "")
         stopped_ranks = self.get_test_param("stopped_ranks", [])
         dmg = self.get_dmg_command()
@@ -132,6 +133,7 @@ class DaosCoreBase(TestWithServers):
                 "--map-by node", "-x", "D_LOG_MASK=DEBUG",
                 "-x", "DD_MASK=mgmt,io,md,epc,rebuild",
                 "-x", "COVFILE=/tmp/test.cov",
+                "-x", "CRT_TIMEOUT",
                 self.daos_test,
                 "-n", dmg_config_file,
                 "".join(["-", subtest]),
@@ -147,6 +149,8 @@ class DaosCoreBase(TestWithServers):
         if not nvme_size:
             nvme_size = 0
         env['POOL_NVME_SIZE'] = "{}".format(nvme_size)
+        if crt_timeout is not None:
+            env['CRT_TIMEOUT'] = str(crt_timeout)
 
         if not load_mpi("openmpi"):
             self.fail("Failed to load openmpi")

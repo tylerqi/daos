@@ -58,6 +58,7 @@ server_config:
       env_vars:
         - DD_MASK=mgmt,io,md,epc,rebuild
         - D_LOG_FILE_APPEND_PID=1
+        - CRT_TIMEOUT=10
     1:
       pinned_numa_node: 1
       nr_xs_helpers: 1
@@ -73,6 +74,7 @@ server_config:
       env_vars:
         - DD_MASK=mgmt,io,md,epc,rebuild
         - D_LOG_FILE_APPEND_PID=1
+        - CRT_TIMEOUT=10
   transport_config:
     allow_insecure: True
 agent_config:
@@ -81,6 +83,9 @@ agent_config:
 dmg:
   transport_config:
     allow_insecure: True
+# CRT_TIMEOUT setting for daos_test processes. This is necessary as
+# long as the control plane does not send a hint to libdaos.
+crt_timeout: 10
 daos_tests:
   num_clients:
     test_daos_degraded_mode: 1
